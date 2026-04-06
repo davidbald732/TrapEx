@@ -1,0 +1,25 @@
+/* Global styles for TrapEx */
+html, body, #root {
+  margin: 0;
+  padding: 0;
+  min-height: 100%;
+}
+
+body {
+  font-family: system-ui, sans-serif;
+  background: #0b1220;
+  color: #edf2f7;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+a {
+  color: #7dd3fc;
+  text-decoration: none;
+}
+
+button {
+  cursor: pointer;
+}
