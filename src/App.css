@@ -332,6 +332,16 @@
   animation: zoomIn 0.5s ease;
 }
 
+.cat-image {
+  width: 300px;
+  height: auto;
+  max-width: 90vw;
+  margin: 0 auto 2rem;
+  border-radius: 20px;
+  animation: catShake 0.3s ease-in-out infinite alternate;
+  filter: drop-shadow(0 10px 30px rgba(0, 0, 0, 0.5));
+}
+
 .cat-svg {
   width: 300px;
   height: 350px;

@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import logo from './logo.png'
+import catJumpscare from './cat.jpeg'
 import './App.css'
 
 function App() {
@@ -179,62 +180,7 @@ function App() {
       {jumpscare && (
         <div className="jumpscare">
           <div className="jumpscare-content">
-            <svg className="cat-svg" viewBox="0 0 300 350" xmlns="http://www.w3.org/2000/svg">
-              <defs>
-                <filter id="shadow">
-                  <feGaussianBlur in="SourceAlpha" stdDeviation="3"/>
-                  <feOffset dx="0" dy="4" result="offsetblur"/>
-                  <feComponentTransfer>
-                    <feFuncA type="linear" slope="0.5"/>
-                  </feComponentTransfer>
-                  <feMerge>
-                    <feMergeNode/>
-                    <feMergeNode in="SourceGraphic"/>
-                  </feMerge>
-                </filter>
-              </defs>
-              
-              {/* Coada */}
-              <path d="M 220 250 Q 280 200 270 100" stroke="#FF8040" strokeWidth="35" fill="none" strokeLinecap="round" filter="url(#shadow)"/>
-              
-              {/* Corp */}
-              <ellipse cx="150" cy="240" rx="70" ry="85" fill="#FF8040" filter="url(#shadow)"/>
-              
-              {/* Cap */}
-              <circle cx="150" cy="120" r="80" fill="#FFA060" filter="url(#shadow)"/>
-              
-              {/* Urechi */}
-              <path d="M 90 50 L 75 10 L 105 45 Z" fill="#FF8040"/>
-              <path d="M 210 50 L 225 10 L 195 45 Z" fill="#FF8040"/>
-              
-              {/* Interior urechi */}
-              <path d="M 90 50 L 85 30 L 100 45 Z" fill="#FFCAA0"/>
-              <path d="M 210 50 L 215 30 L 200 45 Z" fill="#FFCAA0"/>
-              
-              {/* Ochi */}
-              <circle cx="120" cy="100" r="18" fill="#fff"/>
-              <circle cx="180" cy="100" r="18" fill="#fff"/>
-              
-              {/* Pupile animate */}
-              <circle cx="120" cy="105" r="12" fill="#000" className="pupil-svg pupil-left"/>
-              <circle cx="180" cy="105" r="12" fill="#000" className="pupil-svg pupil-right"/>
-              
-              {/* Nas */}
-              <path d="M 150 130 L 145 145 L 155 145 Z" fill="#FF6B9D"/>
-              
-              {/* Gura */}
-              <path d="M 150 145 Q 140 160 130 155" stroke="#000" strokeWidth="2" fill="none" strokeLinecap="round"/>
-              <path d="M 150 145 Q 160 160 170 155" stroke="#000" strokeWidth="2" fill="none" strokeLinecap="round"/>
-              
-              {/* Mustati */}
-              <line x1="75" y1="125" x2="30" y2="120" stroke="#000" strokeWidth="2" strokeLinecap="round"/>
-              <line x1="75" y1="135" x2="30" y2="140" stroke="#000" strokeWidth="2" strokeLinecap="round"/>
-              <line x1="225" y1="125" x2="270" y2="120" stroke="#000" strokeWidth="2" strokeLinecap="round"/>
-              <line x1="225" y1="135" x2="270" y2="140" stroke="#000" strokeWidth="2" strokeLinecap="round"/>
-              
-              {/* Burtă */}
-              <ellipse cx="150" cy="260" rx="45" ry="55" fill="#FFCAA0"/>
-            </svg>
+            <img src={catJumpscare} alt="Scary cat" className="cat-image" />
             <p>💔 BOO! 💔</p>
           </div>
         </div>
