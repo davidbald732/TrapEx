@@ -17,7 +17,8 @@ function App() {
   const [coins, setCoins] = useState(0)
   const [ownedSkins, setOwnedSkins] = useState(['default'])
   const [shopOpen, setShopOpen] = useState(false)
-  const [previewSkin, setPreviewSkin] = useState(null)
+  const [previewBox, setPreviewBox] = useState(null)
+  const [shopMessage, setShopMessage] = useState('')
   const [profileOpen, setProfileOpen] = useState(false)
   const [questsOpen, setQuestsOpen] = useState(false)
   const [highScore, setHighScore] = useState(0)
@@ -117,6 +118,36 @@ function App() {
     setLevelStartTime(Date.now())
   }
 
+  const skinBoxes = [
+    { id: 'common', emoji: '🟦', title: 'Common Box', description: 'Contains one Common skin: perfect for new players.', cost: 100, skins: ['dark', 'neon', 'shadow', 'spark'] },
+    { id: 'rare', emoji: '🟪', title: 'Rare Box', description: 'Contains one Rare skin with stylish effects.', cost: 250, skins: ['fire', 'ice', 'galaxy', 'ember', 'aura'] },
+    { id: 'epic', emoji: '🟧', title: 'Epic Box', description: 'Contains one Epic skin for collectors.', cost: 500, skins: ['rainbow', 'matrix', 'cyberpunk', 'retro', 'vapor', 'solar'] },
+    { id: 'mystery', emoji: '🎁', title: 'Mystery Box', description: 'Contains any available skin. Anything can drop!', cost: 800, skins: ['dark', 'neon', 'shadow', 'spark', 'fire', 'ice', 'galaxy', 'ember', 'aura', 'rainbow', 'matrix', 'cyberpunk', 'retro', 'vapor', 'solar'] },
+  ]
+
+  const openBox = (box) => {
+    if (coins < box.cost) {
+      setShopMessage(`❌ Nu ai destui ${box.id === 'mystery' ? 'bani' : '🪙'} pentru cutia ${box.title}.`)
+      return
+    }
+    setCoins(prev => prev - box.cost)
+    const possible = box.skins.filter((skin) => !ownedSkins.includes(skin))
+    const pool = possible.length > 0 ? possible : box.skins
+    const randomSkin = pool[Math.floor(Math.random() * pool.length)]
+
+    if (!ownedSkins.includes(randomSkin)) {
+      setOwnedSkins(prev => [...prev, randomSkin])
+      setShopMessage(`🎉 Ai deschis ${box.emoji} ${box.title}! Ai obținut skinul ${randomSkin}.`)
+    } else {
+      setShopMessage(`🎁 Ai deschis ${box.emoji} ${box.title}, dar ai primit un skin deja deblocat: ${randomSkin}.`)
+    }
+
+    setSelectedSkin(randomSkin)
+    setPreviewBox(null)
+  }
+
+  const previewBoxData = skinBoxes.find((b) => b.id === previewBox)
+
   const claimQuest = (id) => {
     setQuestStatus(prev => {
       const quest = prev[id]
@@ -198,14 +229,6 @@ function App() {
     }
   }
 
-  const buySkin = (skin, cost) => {
-    if (coins >= cost && !ownedSkins.includes(skin)) {
-      setCoins(prev => prev - cost)
-      setOwnedSkins(prev => [...prev, skin])
-      setSelectedSkin(skin)
-    }
-  }
-
   return (
     <div className="app-shell">
       <header className="hero">
@@ -281,6 +304,24 @@ function App() {
               </button>}
               {ownedSkins.includes('retro') && <button className="skin-btn" onClick={() => selectSkin('retro')}>
                 Retro
+              </button>}
+              {ownedSkins.includes('shadow') && <button className="skin-btn" onClick={() => selectSkin('shadow')}>
+                Shadow
+              </button>}
+              {ownedSkins.includes('spark') && <button className="skin-btn" onClick={() => selectSkin('spark')}>
+                Spark
+              </button>}
+              {ownedSkins.includes('ember') && <button className="skin-btn" onClick={() => selectSkin('ember')}>
+                Ember
+              </button>}
+              {ownedSkins.includes('aura') && <button className="skin-btn" onClick={() => selectSkin('aura')}>
+                Aura
+              </button>}
+              {ownedSkins.includes('vapor') && <button className="skin-btn" onClick={() => selectSkin('vapor')}>
+                Vapor
+              </button>}
+              {ownedSkins.includes('solar') && <button className="skin-btn" onClick={() => selectSkin('solar')}>
+                Solar
               </button>}
             </div>
           </section>
@@ -439,225 +480,60 @@ function App() {
             <h3>🛒 Shop</h3>
             <p>Coins: {coins} 🪙</p>
             
-            {previewSkin && (
+            {previewBoxData && (
               <div className="skin-preview">
                 <div className="preview-header">
-                  <h4>Preview: {previewSkin.charAt(0).toUpperCase() + previewSkin.slice(1)} Skin</h4>
+                  <h4>{previewBoxData.title}</h4>
                   <button 
                     className="close-preview-btn" 
-                    onClick={() => setPreviewSkin(null)}
+                    onClick={() => setPreviewBox(null)}
                     title="Close Preview"
                   >
                     ✕
                   </button>
                 </div>
-                <div className={`preview-panel ${previewSkin}`}>
-                  <div className="preview-stats">
-                    <span>Score: 999</span>
-                    <span>Coins: 999 🪙</span>
-                    <span>❤️❤️❤️❤️❤️</span>
-                  </div>
-                  <div className="preview-table">
-                    <button className={`preview-btn ${previewSkin}`}>✓</button>
-                    <button className={`preview-btn ${previewSkin}`}>?</button>
-                    <button className={`preview-btn ${previewSkin}`}>?</button>
-                    <button className={`preview-btn ${previewSkin}`}>?</button>
-                    <button className={`preview-btn ${previewSkin}`}>★</button>
+                <div className="preview-panel box-preview">
+                  <p>{previewBoxData.description}</p>
+                  <p>Posibile skinuri din cutie:</p>
+                  <div className="box-skin-list">
+                    {previewBoxData.skins.map((skin) => (
+                      <span key={skin} className={`box-skin ${ownedSkins.includes(skin) ? 'owned' : ''}`}>
+                        {skin.charAt(0).toUpperCase() + skin.slice(1)}
+                      </span>
+                    ))}
                   </div>
                 </div>
               </div>
             )}
-            
+
+            {shopMessage && <div className="shop-message">{shopMessage}</div>}
+
             <div className="shop-items">
-              {!ownedSkins.includes('dark') && (
-                <div className="shop-item">
-                  <div className="skin-info">
-                    <span>Dark Skin - 50 🪙</span>
+              {skinBoxes.map((box) => (
+                <div key={box.id} className={`shop-item box-${box.id}`}>
+                  <div className="box-info">
+                    <span className="box-title">{box.emoji} {box.title}</span>
+                    <span className="box-cost">{box.cost} 🪙</span>
+                  </div>
+                  <p className="box-description">{box.description}</p>
+                  <div className="shop-actions">
                     <button 
                       className="preview-btn-small" 
-                      onClick={() => setPreviewSkin('dark')}
+                      onClick={() => { setPreviewBox(box.id); setShopMessage('') }}
                       title="Preview"
                     >
-                      👁️
+                      👁️ Preview
                     </button>
-                  </div>
-                  <button 
-                    className="buy-btn" 
-                    onClick={() => buySkin('dark', 50)}
-                    disabled={coins < 50}
-                  >
-                    Buy
-                  </button>
-                </div>
-              )}
-              {!ownedSkins.includes('neon') && (
-                <div className="shop-item">
-                  <div className="skin-info">
-                    <span>Neon Skin - 100 🪙</span>
                     <button 
-                      className="preview-btn-small" 
-                      onClick={() => setPreviewSkin('neon')}
-                      title="Preview"
+                      className="buy-btn" 
+                      onClick={() => openBox(box)}
+                      disabled={coins < box.cost}
                     >
-                      👁️
+                      Open Box
                     </button>
                   </div>
-                  <button 
-                    className="buy-btn" 
-                    onClick={() => buySkin('neon', 100)}
-                    disabled={coins < 100}
-                  >
-                    Buy
-                  </button>
                 </div>
-              )}
-              {!ownedSkins.includes('fire') && (
-                <div className="shop-item">
-                  <div className="skin-info">
-                    <span>Fire Skin - 150 🪙</span>
-                    <button 
-                      className="preview-btn-small" 
-                      onClick={() => setPreviewSkin('fire')}
-                      title="Preview"
-                    >
-                      👁️
-                    </button>
-                  </div>
-                  <button 
-                    className="buy-btn" 
-                    onClick={() => buySkin('fire', 150)}
-                    disabled={coins < 150}
-                  >
-                    Buy
-                  </button>
-                </div>
-              )}
-              {!ownedSkins.includes('ice') && (
-                <div className="shop-item">
-                  <div className="skin-info">
-                    <span>Ice Skin - 200 🪙</span>
-                    <button 
-                      className="preview-btn-small" 
-                      onClick={() => setPreviewSkin('ice')}
-                      title="Preview"
-                    >
-                      👁️
-                    </button>
-                  </div>
-                  <button 
-                    className="buy-btn" 
-                    onClick={() => buySkin('ice', 200)}
-                    disabled={coins < 200}
-                  >
-                    Buy
-                  </button>
-                </div>
-              )}
-              {!ownedSkins.includes('galaxy') && (
-                <div className="shop-item">
-                  <div className="skin-info">
-                    <span>Galaxy Skin - 300 🪙</span>
-                    <button 
-                      className="preview-btn-small" 
-                      onClick={() => setPreviewSkin('galaxy')}
-                      title="Preview"
-                    >
-                      👁️
-                    </button>
-                  </div>
-                  <button 
-                    className="buy-btn" 
-                    onClick={() => buySkin('galaxy', 300)}
-                    disabled={coins < 300}
-                  >
-                    Buy
-                  </button>
-                </div>
-              )}
-              {!ownedSkins.includes('rainbow') && (
-                <div className="shop-item">
-                  <div className="skin-info">
-                    <span>Rainbow Skin - 400 🪙</span>
-                    <button 
-                      className="preview-btn-small" 
-                      onClick={() => setPreviewSkin('rainbow')}
-                      title="Preview"
-                    >
-                      👁️
-                    </button>
-                  </div>
-                  <button 
-                    className="buy-btn" 
-                    onClick={() => buySkin('rainbow', 400)}
-                    disabled={coins < 400}
-                  >
-                    Buy
-                  </button>
-                </div>
-              )}
-              {!ownedSkins.includes('matrix') && (
-                <div className="shop-item">
-                  <div className="skin-info">
-                    <span>Matrix Skin - 500 🪙</span>
-                    <button 
-                      className="preview-btn-small" 
-                      onClick={() => setPreviewSkin('matrix')}
-                      title="Preview"
-                    >
-                      👁️
-                    </button>
-                  </div>
-                  <button 
-                    className="buy-btn" 
-                    onClick={() => buySkin('matrix', 500)}
-                    disabled={coins < 500}
-                  >
-                    Buy
-                  </button>
-                </div>
-              )}
-              {!ownedSkins.includes('cyberpunk') && (
-                <div className="shop-item">
-                  <div className="skin-info">
-                    <span>Cyberpunk Skin - 600 🪙</span>
-                    <button 
-                      className="preview-btn-small" 
-                      onClick={() => setPreviewSkin('cyberpunk')}
-                      title="Preview"
-                    >
-                      👁️
-                    </button>
-                  </div>
-                  <button 
-                    className="buy-btn" 
-                    onClick={() => buySkin('cyberpunk', 600)}
-                    disabled={coins < 600}
-                  >
-                    Buy
-                  </button>
-                </div>
-              )}
-              {!ownedSkins.includes('retro') && (
-                <div className="shop-item">
-                  <div className="skin-info">
-                    <span>Retro Skin - 700 🪙</span>
-                    <button 
-                      className="preview-btn-small" 
-                      onClick={() => setPreviewSkin('retro')}
-                      title="Preview"
-                    >
-                      👁️
-                    </button>
-                  </div>
-                  <button 
-                    className="buy-btn" 
-                    onClick={() => buySkin('retro', 700)}
-                    disabled={coins < 700}
-                  >
-                    Buy
-                  </button>
-                </div>
-              )}
+              ))}
             </div>
             <button className="close-shop-btn" onClick={() => setShopOpen(false)}>Close</button>
           </div>
