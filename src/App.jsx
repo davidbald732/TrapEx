@@ -194,7 +194,7 @@ function App() {
         if (newLives <= 0) {
           setPhase('game-over')
         }
-      }, 2000)
+      }, 2000) 
     }
   }
 
