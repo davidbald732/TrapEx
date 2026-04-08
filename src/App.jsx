@@ -36,6 +36,10 @@ function App() {
   const [fullHealthProgress, setFullHealthProgress] = useState(1)
   const [gameTimer, setGameTimer] = useState(null)
   const [timeLeft, setTimeLeft] = useState(600) // 10 minutes in seconds
+  const [combo, setCombo] = useState(0)
+  const [currentRank, setCurrentRank] = useState(0)
+  const [showRankUp, setShowRankUp] = useState(false)
+  const ranks = ['Bronze', 'Silver', 'Gold', 'Diamond', 'Platinum', 'Champion', 'Grand Champion']
 
   useEffect(() => {
     const savedCoins = localStorage.getItem('trapex-coins')
@@ -117,6 +121,8 @@ function App() {
     setFullHealthActive(true)
     setFullHealthProgress(1)
     setLevelStartTime(Date.now())
+    setCombo(0)
+    setCurrentRank(0)
   }
 
   const skinBoxes = [
@@ -216,6 +222,17 @@ function App() {
         setTimeout(() => {
           setLevel(prev => prev + 1)
           setCoins(prev => prev + 20)
+          if (selectedMode === 'ranked' && (level + 1) % 10 === 0 && (level + 1) > 0) {
+            setCurrentRank(prev => {
+              const newRank = Math.min(prev + 1, ranks.length - 1)
+              if (newRank === ranks.length - 1 && !ownedSkins.includes('hardworker')) {
+                setOwnedSkins(prevSkins => [...prevSkins, 'hardworker'])
+              }
+              setShowRankUp(true)
+              setTimeout(() => setShowRankUp(false), 3000)
+              return newRank
+            })
+          }
           generateButtons()
         }, 1000)
       }
@@ -236,7 +253,26 @@ function App() {
         setFullHealthProgress(nextLevel)
         updateQuestStatus('fullHealth', { current: nextLevel })
       }
+      setCombo(prev => prev + 1)
       setTimeout(() => {
+        setLevel(nextLevel)
+        setCoins(prev => prev + 15)
+        updateQuestStatus('levelChampion', { current: nextLevel })
+        if (fullHealthActive) {
+          setFullHealthProgress(nextLevel)
+          updateQuestStatus('fullHealth', { current: nextLevel })
+        }
+        if (selectedMode === 'ranked' && nextLevel % 10 === 0 && nextLevel > 0) {
+          setCurrentRank(prev => {
+            const newRank = Math.min(prev + 1, ranks.length - 1)
+            if (newRank === ranks.length - 1 && !ownedSkins.includes('hardworker')) {
+              setOwnedSkins(prevSkins => [...prevSkins, 'hardworker'])
+            }
+            setShowRankUp(true)
+            setTimeout(() => setShowRankUp(false), 3000)
+            return newRank
+          })
+        }
         generateButtons()
       }, 1000)
     } else if (button.type === 'troll') {
@@ -312,6 +348,10 @@ function App() {
                 ⏱️ Time Attack<br/>
                 <small>10 minutes to reach the highest level possible</small>
               </button>
+              <button className="mode-btn ranked" onClick={() => selectMode('ranked')}>
+                🏆 Ranked<br/>
+                <small>Climb the ranks every 10 levels!</small>
+              </button>
             </div>
           </section>
         )}
@@ -369,6 +409,9 @@ function App() {
               {ownedSkins.includes('solar') && <button className="skin-btn" onClick={() => selectSkin('solar')}>
                 Solar
               </button>}
+              {ownedSkins.includes('hardworker') && <button className="skin-btn" onClick={() => selectSkin('hardworker')}>
+                Hard Worker
+              </button>}
             </div>
           </section>
         )}
@@ -382,7 +425,15 @@ function App() {
                 <span>Coins: {coins} 🪙</span>
                 <span>{'❤️'.repeat(lives)}</span>
                 {selectedMode === 'time' && <span>⏱️ {Math.floor(timeLeft / 60)}:{(timeLeft % 60).toString().padStart(2, '0')}</span>}
+                {selectedMode === 'ranked' && <span>🏆 {ranks[currentRank]}</span>}
               </div>
+            </div>
+            <div className="combo-display">
+              <span className="combo-text">🔥 Combo: {combo}</span>
+            </div>
+            <div className="progress-container">
+              <div className="progress-bar" style={{ width: `${(goodClicked / 5) * 100}%` }}></div>
+              <span className="progress-text">{goodClicked}/5</span>
             </div>
             <div className="table">
               {buttons.map(button => (
@@ -399,6 +450,14 @@ function App() {
             <button className="shop-btn" onClick={() => setShopOpen(true)}>
               🛒 Shop
             </button>
+            {showRankUp && (
+              <div className="rank-up-notification">
+                <div className="rank-up-content">
+                  🏆 YOU RANKED UP! 🏆
+                  <div className="rank-up-rank">{ranks[currentRank]}</div>
+                </div>
+              </div>
+            )}
           </section>
         )}
 
