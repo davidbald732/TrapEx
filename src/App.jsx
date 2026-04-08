@@ -8,6 +8,7 @@ function App() {
   const [nameInput, setNameInput] = useState('')
   const [phase, setPhase] = useState('intro')
   const [selectedSkin, setSelectedSkin] = useState('default')
+  const [selectedMode, setSelectedMode] = useState('classic')
   const [count, setCount] = useState(0)
   const [level, setLevel] = useState(1)
   const [jumpscare, setJumpscare] = useState(false)
@@ -33,6 +34,8 @@ function App() {
   const [levelStartTime, setLevelStartTime] = useState(null)
   const [fullHealthActive, setFullHealthActive] = useState(true)
   const [fullHealthProgress, setFullHealthProgress] = useState(1)
+  const [gameTimer, setGameTimer] = useState(null)
+  const [timeLeft, setTimeLeft] = useState(600) // 10 minutes in seconds
 
   useEffect(() => {
     const savedCoins = localStorage.getItem('trapex-coins')
@@ -83,14 +86,12 @@ function App() {
       setRegistrationDate(new Date().toLocaleDateString())
     }
     resetQuestsForNewGame()
-    setPhase('skin-select')
+    setPhase('mode-select')
   }
 
-  const selectSkin = (skin) => {
-    setSelectedSkin(skin)
-    setPhase('play')
-    setLives(5)
-    generateButtons()
+  const selectMode = (mode) => {
+    setSelectedMode(mode)
+    setPhase('skin-select')
   }
 
   const updateQuestStatus = (id, updates) => {
@@ -157,6 +158,27 @@ function App() {
     })
   }
 
+  const selectSkin = (skin) => {
+    setSelectedSkin(skin)
+    setPhase('play')
+    setLives(5)
+    generateButtons()
+    if (selectedMode === 'time') {
+      setTimeLeft(600)
+      const timer = setInterval(() => {
+        setTimeLeft(prev => {
+          if (prev <= 1) {
+            clearInterval(timer)
+            setPhase('game-over')
+            return 0
+          }
+          return prev - 1
+        })
+      }, 1000)
+      setGameTimer(timer)
+    }
+  }
+
   const generateButtons = () => {
     setLevelStartTime(Date.now())
     const types = ['good', 'good', 'good', 'good', 'good', 'savior', 'troll', 'troll', 'troll', 'troll']
@@ -204,7 +226,9 @@ function App() {
         updateQuestStatus('speedRunner', { current: 1 })
       }
       setCount(prev => prev + 50)
-      setLives(prev => prev + 2)
+      if (selectedMode !== 'hardcore') {
+        setLives(prev => prev + 2)
+      }
       setLevel(nextLevel)
       setCoins(prev => prev + 15)
       updateQuestStatus('levelChampion', { current: nextLevel })
@@ -223,6 +247,7 @@ function App() {
       setTimeout(() => {
         setJumpscare(false)
         if (newLives <= 0) {
+          if (gameTimer) clearInterval(gameTimer)
           setPhase('game-over')
         }
       }, 2000) 
@@ -267,6 +292,27 @@ function App() {
             <button className="play-btn" onClick={startGame} disabled={!nameInput.trim()}>
               Begin Quest
             </button>
+          </section>
+        )}
+
+        {phase === 'mode-select' && (
+          <section className="card mode-panel">
+            <h2>Select Game Mode</h2>
+            <p>Choose your challenge level and playstyle!</p>
+            <div className="mode-options">
+              <button className="mode-btn classic" onClick={() => selectMode('classic')}>
+                🎮 Classic<br/>
+                <small>Standard gameplay with life regeneration</small>
+              </button>
+              <button className="mode-btn hardcore" onClick={() => selectMode('hardcore')}>
+                💀 Hardcore<br/>
+                <small>No life regeneration - survive or die!</small>
+              </button>
+              <button className="mode-btn time" onClick={() => selectMode('time')}>
+                ⏱️ Time Attack<br/>
+                <small>10 minutes to reach the highest level possible</small>
+              </button>
+            </div>
           </section>
         )}
 
@@ -335,6 +381,7 @@ function App() {
                 <span>Score: {count}</span>
                 <span>Coins: {coins} 🪙</span>
                 <span>{'❤️'.repeat(lives)}</span>
+                {selectedMode === 'time' && <span>⏱️ {Math.floor(timeLeft / 60)}:{(timeLeft % 60).toString().padStart(2, '0')}</span>}
               </div>
             </div>
             <div className="table">
