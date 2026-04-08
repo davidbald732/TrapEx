@@ -22,6 +22,7 @@ function App() {
   const [shopMessage, setShopMessage] = useState('')
   const [profileOpen, setProfileOpen] = useState(false)
   const [questsOpen, setQuestsOpen] = useState(false)
+  const [aboutOpen, setAboutOpen] = useState(false)
   const [highScore, setHighScore] = useState(0)
   const [registrationDate, setRegistrationDate] = useState('')
   const [questStatus, setQuestStatus] = useState({
@@ -39,6 +40,10 @@ function App() {
   const [combo, setCombo] = useState(0)
   const [currentRank, setCurrentRank] = useState(0)
   const [showRankUp, setShowRankUp] = useState(false)
+  const [goodCount, setGoodCount] = useState(0)
+  const [saviorCount, setSaviorCount] = useState(0)
+  const [trollCount, setTrollCount] = useState(0)
+  const [bestCombo, setBestCombo] = useState(0)
   const ranks = ['Bronze', 'Silver', 'Gold', 'Diamond', 'Platinum', 'Champion', 'Grand Champion']
 
   useEffect(() => {
@@ -46,10 +51,16 @@ function App() {
     const savedSkins = localStorage.getItem('trapex-skins')
     const savedHighScore = localStorage.getItem('trapex-highscore')
     const savedRegDate = localStorage.getItem('trapex-regdate')
+    const savedGoodCount = localStorage.getItem('trapex-goodcount')
+    const savedSaviorCount = localStorage.getItem('trapex-saviorcount')
+    const savedTrollCount = localStorage.getItem('trapex-trollcount')
     if (savedCoins) setCoins(parseInt(savedCoins))
     if (savedSkins) setOwnedSkins(JSON.parse(savedSkins))
     if (savedHighScore) setHighScore(parseInt(savedHighScore))
     if (savedRegDate) setRegistrationDate(savedRegDate)
+    if (savedGoodCount) setGoodCount(parseInt(savedGoodCount))
+    if (savedSaviorCount) setSaviorCount(parseInt(savedSaviorCount))
+    if (savedTrollCount) setTrollCount(parseInt(savedTrollCount))
   }, [])
 
   useEffect(() => {
@@ -80,6 +91,18 @@ function App() {
       localStorage.setItem('trapex-regdate', registrationDate)
     }
   }, [registrationDate])
+
+  useEffect(() => {
+    localStorage.setItem('trapex-goodcount', goodCount.toString())
+  }, [goodCount])
+
+  useEffect(() => {
+    localStorage.setItem('trapex-saviorcount', saviorCount.toString())
+  }, [saviorCount])
+
+  useEffect(() => {
+    localStorage.setItem('trapex-trollcount', trollCount.toString())
+  }, [trollCount])
 
   const goToSetup = () => setPhase('setup')
   const startGame = () => {
@@ -123,6 +146,7 @@ function App() {
     setLevelStartTime(Date.now())
     setCombo(0)
     setCurrentRank(0)
+    setBestCombo(0)
   }
 
   const skinBoxes = [
@@ -205,6 +229,7 @@ function App() {
       setGoodClicked(nextGoodClicked)
       setCount(prev => prev + 10)
       setCoins(prev => prev + 10)
+      setGoodCount(prev => prev + 1)
       updateQuestStatus('clickMaster', { current: Math.min(nextGoodClicked, 50) })
 
       if (nextGoodClicked >= 5) {
@@ -253,7 +278,12 @@ function App() {
         setFullHealthProgress(nextLevel)
         updateQuestStatus('fullHealth', { current: nextLevel })
       }
-      setCombo(prev => prev + 1)
+      setCombo(prev => {
+        const newCombo = prev + 1
+        setBestCombo(currentBest => Math.max(currentBest, newCombo))
+        return newCombo
+      })
+      setSaviorCount(prev => prev + 1)
       setTimeout(() => {
         setLevel(nextLevel)
         setCoins(prev => prev + 15)
@@ -279,6 +309,8 @@ function App() {
       const newLives = lives - 1
       setLives(newLives)
       setFullHealthActive(false)
+      setCombo(0)
+      setTrollCount(prev => prev + 1)
       setJumpscare(true)
       setTimeout(() => {
         setJumpscare(false)
@@ -293,7 +325,7 @@ function App() {
   return (
     <div className="app-shell">
       <header className="hero">
-        <img src={logo} className="logo" alt="TrapEx logo" />
+        <img src={logo} className="logo" alt="TrapEx logo" onClick={() => setAboutOpen(true)} style={{cursor: 'pointer'}} />
         <div className="hero-copy">
           <span className="eyebrow">Epic Adventure Game</span>
           <h1>TrapEx</h1>
@@ -316,18 +348,25 @@ function App() {
 
         {phase === 'setup' && (
           <section className="card setup-panel">
-            <h2>Choose Your Identity</h2>
-            <p>Create your legendary TrapEx username and step into the arena!</p>
-            <input
-              className="player-input"
-              type="text"
-              value={nameInput}
-              onChange={(e) => setNameInput(e.target.value)}
-              placeholder="Enter your name"
-            />
-            <button className="play-btn" onClick={startGame} disabled={!nameInput.trim()}>
-              Begin Quest
-            </button>
+            <div className="setup-container">
+              <div className="setup-decorative">✨</div>
+              <h2>Choose Your Identity</h2>
+              <p>Create your legendary TrapEx username and step into the arena!</p>
+              <div className="input-wrapper">
+                <input
+                  className="player-input"
+                  type="text"
+                  value={nameInput}
+                  onChange={(e) => setNameInput(e.target.value)}
+                  placeholder="Enter your gaming name..."
+                  autoFocus
+                />
+              </div>
+              <button className="play-btn" onClick={startGame} disabled={!nameInput.trim()}>
+                Begin Quest 🎮
+              </button>
+              <div className="setup-decorative-bottom">⭐</div>
+            </div>
           </section>
         )}
 
@@ -358,9 +397,11 @@ function App() {
 
         {phase === 'skin-select' && (
           <section className={`card skin-panel ${selectedSkin}`}>
-            <h2>Choose Your Style</h2>
-            <p>Select a visual theme that matches your personality and enhances your gaming experience!</p>
-            <div className="skin-options">
+            <div className="skin-container">
+              <div className="skin-decorative">🎨</div>
+              <h2>Choose Your Style</h2>
+              <p>Select a visual theme that matches your personality and enhances your gaming experience!</p>
+              <div className="skin-options">
               {ownedSkins.includes('default') && <button className="skin-btn" onClick={() => selectSkin('default')}>
                 Default
               </button>}
@@ -413,23 +454,29 @@ function App() {
                 Hard Worker
               </button>}
             </div>
+            <div className="skin-decorative-bottom">✨</div>
+            </div>
           </section>
         )}
 
         {phase === 'play' && (
           <section className={`card game-panel ${selectedSkin}`}>
             <div className="game-header">
-              <h2>{playerName} - Level {level}</h2>
-              <div className="stats">
-                <span>Score: {count}</span>
-                <span>Coins: {coins} 🪙</span>
-                <span>{'❤️'.repeat(lives)}</span>
-                {selectedMode === 'time' && <span>⏱️ {Math.floor(timeLeft / 60)}:{(timeLeft % 60).toString().padStart(2, '0')}</span>}
-                {selectedMode === 'ranked' && <span>🏆 {ranks[currentRank]}</span>}
+              <div className="game-header-left">
+                <h2>{playerName} - Level {level}</h2>
+              </div>
+              <div className="game-header-right">
+                <div className="stats">
+                  <span>{'❤️'.repeat(lives)}</span>
+                  <span>🪙 {coins}</span>
+                  {selectedMode === 'time' && <span>⏱️ {Math.floor(timeLeft / 60)}:{(timeLeft % 60).toString().padStart(2, '0')}</span>}
+                  {selectedMode === 'ranked' && <span>🏆 {ranks[currentRank]}</span>}
+                </div>
               </div>
             </div>
             <div className="combo-display">
               <span className="combo-text">🔥 Combo: {combo}</span>
+              <span className="best-combo-text">⭐ Best: {bestCombo}</span>
             </div>
             <div className="progress-container">
               <div className="progress-bar" style={{ width: `${(goodClicked / 5) * 100}%` }}></div>
@@ -521,6 +568,21 @@ function App() {
               <div className="profile-stat">
                 <span className="stat-label">Member Since:</span>
                 <span className="stat-value">{registrationDate || 'Today'}</span>
+              </div>
+              <div className="profile-section">
+                <h4>Button Statistics</h4>
+                <div className="profile-stat">
+                  <span className="stat-label">🟢 Good Buttons:</span>
+                  <span className="stat-value">{goodCount}</span>
+                </div>
+                <div className="profile-stat">
+                  <span className="stat-label">🟡 Savior Buttons:</span>
+                  <span className="stat-value">{saviorCount}</span>
+                </div>
+                <div className="profile-stat">
+                  <span className="stat-label">🔴 Troll Buttons:</span>
+                  <span className="stat-value">{trollCount}</span>
+                </div>
               </div>
             </div>
             <button className="close-profile-btn" onClick={() => setProfileOpen(false)}>Close</button>
@@ -642,6 +704,41 @@ function App() {
               ))}
             </div>
             <button className="close-shop-btn" onClick={() => setShopOpen(false)}>Close</button>
+          </div>
+        </div>
+      )}
+
+      {aboutOpen && (
+        <div className="about-overlay" onClick={() => setAboutOpen(false)}>
+          <div className="about-panel" onClick={(e) => e.stopPropagation()}>
+            <h3>🚀 About TrapEx</h3>
+            <div className="about-content">
+              <h4>The Game</h4>
+              <p>TrapEx is an epic click challenge game built with React and Vite! Test your reflexes, unlock amazing skins, and climb the ranks in competitive mode. Choose your playstyle: Classic, Hardcore, Time Attack, or Ranked!</p>
+              
+              <h4>Key Features</h4>
+              <ul>
+                <li>🎮 4 Unique Game Modes with different challenges</li>
+                <li>🏆 7 Ranking Tiers to achieve and climb</li>
+                <li>💎 15+ Beautiful Skins to unlock and collect</li>
+                <li>🎯 Daily Quests with awesome rewards</li>
+                <li>💰 Shop System with mystery boxes</li>
+                <li>📊 Track Your Stats and Progress</li>
+                <li>🔥 Combo System with Best Combo tracking</li>
+              </ul>
+
+              <h4>Development Team</h4>
+              <p className="team-info">
+                Built with passion by David 💻 | Powered by React ⚛️ + Vite ⚡
+              </p>
+
+              <h4>Version</h4>
+              <p>TrapEx v1.0.0 - April 2026</p>
+
+              <h4>Special Thanks</h4>
+              <p>Thanks to all players testing and enjoying TrapEx! Your feedback helps us make this game even better! 🎉</p>
+            </div>
+            <button className="close-about-btn" onClick={() => setAboutOpen(false)}>Close</button>
           </div>
         </div>
       )}
