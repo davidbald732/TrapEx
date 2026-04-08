@@ -331,6 +331,32 @@ function App() {
           <h1>TrapEx</h1>
           <p>Experience the ultimate click challenge! Test your reflexes, unlock amazing skins, and conquer every level in this thrilling React-powered adventure.</p>
         </div>
+        {aboutOpen && (
+          <div className="about-panel hero-about-panel" onClick={(e) => e.stopPropagation()}>
+            <h3>🚀 About TrapEx</h3>
+            <div className="about-content">
+              <h4>The Game</h4>
+              <p>TrapEx is an epic click challenge game built with React and Vite! Test your reflexes, unlock amazing skins, and climb the ranks in competitive mode. Choose your playstyle: Classic, Hardcore, Time Attack, or Ranked!</p>
+              <h4>Key Features</h4>
+              <ul>
+                <li>🎮 4 Unique Game Modes with different challenges</li>
+                <li>🏆 7 Ranking Tiers to achieve and climb</li>
+                <li>💎 15+ Beautiful Skins to unlock and collect</li>
+                <li>🎯 Daily Quests with awesome rewards</li>
+                <li>💰 Shop System with mystery boxes</li>
+                <li>📊 Track Your Stats and Progress</li>
+                <li>🔥 Combo System with Best Combo tracking</li>
+              </ul>
+              <h4>Development Team</h4>
+              <p className="team-info">Built with passion by David 💻 | Powered by React ⚛️ + Vite ⚡</p>
+              <h4>Version</h4>
+              <p>TrapEx v1.0.0 - April 2026</p>
+              <h4>Special Thanks</h4>
+              <p>Thanks to all players testing and enjoying TrapEx! Your feedback helps us make this game even better! 🎉</p>
+            </div>
+            <button className="close-about-btn" onClick={() => setAboutOpen(false)}>Close</button>
+          </div>
+        )}
       </header>
 
       <main className="content">
@@ -704,41 +730,6 @@ function App() {
               ))}
             </div>
             <button className="close-shop-btn" onClick={() => setShopOpen(false)}>Close</button>
-          </div>
-        </div>
-      )}
-
-      {aboutOpen && (
-        <div className="about-overlay" onClick={() => setAboutOpen(false)}>
-          <div className="about-panel" onClick={(e) => e.stopPropagation()}>
-            <h3>🚀 About TrapEx</h3>
-            <div className="about-content">
-              <h4>The Game</h4>
-              <p>TrapEx is an epic click challenge game built with React and Vite! Test your reflexes, unlock amazing skins, and climb the ranks in competitive mode. Choose your playstyle: Classic, Hardcore, Time Attack, or Ranked!</p>
-              
-              <h4>Key Features</h4>
-              <ul>
-                <li>🎮 4 Unique Game Modes with different challenges</li>
-                <li>🏆 7 Ranking Tiers to achieve and climb</li>
-                <li>💎 15+ Beautiful Skins to unlock and collect</li>
-                <li>🎯 Daily Quests with awesome rewards</li>
-                <li>💰 Shop System with mystery boxes</li>
-                <li>📊 Track Your Stats and Progress</li>
-                <li>🔥 Combo System with Best Combo tracking</li>
-              </ul>
-
-              <h4>Development Team</h4>
-              <p className="team-info">
-                Built with passion by David 💻 | Powered by React ⚛️ + Vite ⚡
-              </p>
-
-              <h4>Version</h4>
-              <p>TrapEx v1.0.0 - April 2026</p>
-
-              <h4>Special Thanks</h4>
-              <p>Thanks to all players testing and enjoying TrapEx! Your feedback helps us make this game even better! 🎉</p>
-            </div>
-            <button className="close-about-btn" onClick={() => setAboutOpen(false)}>Close</button>
           </div>
         </div>
       )}
